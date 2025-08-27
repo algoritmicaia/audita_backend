@@ -1,4 +1,5 @@
 # db.py
+from contextlib import contextmanager
 from typing import Generator
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session, DeclarativeBase
@@ -22,20 +23,18 @@ SessionLocal = sessionmaker(
     class_=Session,
 )
 
-def get_db() -> Generator[Session, None, None]:
-    """
-    Crea una sesión por request. Si no hubo excepción, hace commit.
-    Si hubo, rollback y re-lanza para que FastAPI devuelva el error correcto.
-    """
+@contextmanager
+def session_scope() -> Session:
+    """Crea una sesión y maneja commit/rollback automáticamente."""
     db = SessionLocal()
     try:
-        yield db
-        db.commit()
-    except Exception:
-        db.rollback()
+        yield db           # aquí entregamos la sesión al bloque with
+        db.commit()        # si no hubo excepción -> commit
+    except:
+        db.rollback()      # si hubo excepción -> rollback
         raise
     finally:
-        db.close()
+        db.close()         # siempre cerramos la sesión
 
 def create_tables():
     Base.metadata.create_all(bind=engine)

@@ -35,8 +35,8 @@ async def save_protocol(
     )
     
     try:
-        # Convert schema to domain model
-        protocol_dict = protocol_data.model_dump(mode='json')
+        # Convert schema to domain model with proper date handling
+        protocol_dict = protocol_data.model_dump()  # Use default mode to preserve types
         
         # Extract sampling points data
         sampling_points_data = protocol_dict.pop('sampling_points', [])
@@ -72,4 +72,31 @@ async def save_protocol(
             'result': 'error',
             'message': f'Error saving protocol: {str(e)}'
         }
+
+
+@ilumination_protocol_router.get("/ilumination_protocol")
+async def get_protocol_info(
+    response: Response,
+    session_id: str = Depends(get_session_id)
+        
+):
+    response.set_cookie(
+        key="session_id", 
+        value=session_id, 
+        httponly=True,
+        secure=True,
+    )
+
+    protocol_info = await IlluminationProtocolService.get_protocol_by_session_id(session_id=session_id)
+
+    if protocol_info:
+        protocol_dict = protocol_info.model_dump()  # Use default mode to preserve types
+        protocol_schema = IluminationProtocol(**protocol_dict)
+
+        return protocol_schema
+    
+    return {
+        'result': 'ok',
+        'message': 'Not Found'
+    }
 
