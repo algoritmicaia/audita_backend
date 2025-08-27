@@ -50,7 +50,6 @@ async def save_protocol(
         # Create sampling points domain models
         sampling_points = []
         for sp_data in sampling_points_data:
-            sp_data['session_id'] = session_id
             sampling_point = SamplingPoint(**sp_data)
             sampling_points.append(sampling_point)
         
@@ -90,8 +89,7 @@ async def get_protocol_info(
     protocol_info = await IlluminationProtocolService.get_protocol_by_session_id(session_id=session_id)
 
     if protocol_info:
-        protocol_dict = protocol_info.model_dump()  # Use default mode to preserve types
-        protocol_schema = IluminationProtocol(**protocol_dict)
+        protocol_schema = IluminationProtocol.model_validate(protocol_info)
 
         return protocol_schema
     

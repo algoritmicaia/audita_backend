@@ -52,7 +52,7 @@ class IlluminationProtocol(Base):
     finished_at = Column(DateTime, nullable=True)
     
     # Relationships
-    sampling_points = relationship("SamplingPoint", back_populates="illumination_protocol", cascade="all, delete-orphan")
+    sampling_points = relationship("SamplingPoint", back_populates="illumination_protocol", cascade="all, delete-orphan", uselist=True)
     
     def __repr__(self):
         return f"<IlluminationProtocol(id={self.id}, company_name={self.company_name})>"

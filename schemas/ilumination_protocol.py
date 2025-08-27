@@ -1,10 +1,10 @@
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 from typing import Optional, List
 from datetime import date, time
 
 class SamplingPoint(BaseModel):
     """Schema for an illumination sampling point"""
-    
+
     # Basic sampling point data
     time: Optional[str] = None  # hora
     sector: Optional[str] = None  # sector
@@ -19,12 +19,16 @@ class SamplingPoint(BaseModel):
     luminance_uniformity: Optional[str] = None  # uniformidad_luminancia
     average_value: Optional[str] = None  # valor_medio (Average value in Lux)
     required_value: Optional[str] = None  # valor_requerido (Legally required value)
+    
+    class Config:
+        from_attributes = True
 
 
 class IluminationProtocol(BaseModel):
     """Complete schema for illumination protocol"""
-    
+
     # Company data
+    id: Optional[int] = None # id en la bd
     company_name: Optional[str] = None  # razon_social
     tax_id: Optional[str] = None  # cuit
     address: Optional[str] = None  # direccion
@@ -54,4 +58,7 @@ class IluminationProtocol(BaseModel):
     # Conclusions and recommendations
     conclusions: Optional[str] = None  # conclusiones
     recommendations: Optional[str] = None  # recomendaciones
+    
+    class Config:
+        from_attributes = True
 

@@ -15,9 +15,6 @@ class SamplingPoint(Base):
     # Foreign key to illumination protocol
     illumination_protocol_id = Column(Integer, ForeignKey("illumination_protocols.id"), nullable=False)
     
-    # Session tracking
-    session_id = Column(String(100), nullable=False)
-    
     # Basic sampling point data
     time = Column(String(10), nullable=True)  # hora
     sector = Column(String(100), nullable=True)  # sector
