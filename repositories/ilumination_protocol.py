@@ -53,22 +53,25 @@ class IlluminationProtocolRepository:
             
             # Update the updated_at timestamp
             existing_protocol.updated_at = datetime.now(timezone.utc)
+            existing_protocol.sampling_points.clear()
             
-            # Handle sampling points if provided
-            if hasattr(protocol, 'sampling_points') and protocol.sampling_points:
-                # Delete existing sampling points for this protocol
-                db.query(SamplingPoint).filter(
-                    SamplingPoint.illumination_protocol_id == existing_protocol.id
-                ).delete()
-                
-                # Add new sampling points
-                for sampling_point in protocol.sampling_points:
-                    sampling_point.illumination_protocol_id = existing_protocol.id
-                    sampling_point.session_id = existing_protocol.session_id
-                    db.add(sampling_point)
+            incoming_sps = getattr(protocol, "sampling_points", []) or []
+
+            # Romper el vínculo con la lista original para que SQLAlchemy no la toque durante la iteración
+            protocol.sampling_points = []   # <- clave
+
+            for sp in list(incoming_sps):   # iterar sobre copia
+                sp.id = None
+                sp.illumination_protocol = None
+                sp.illumination_protocol_id = None
+
+                # Append SIEMPRE vía la colección del padre "existente"
+                existing_protocol.sampling_points.append(sp)
             
             db.commit()
+            db.refresh(existing_protocol)
             return existing_protocol
+
         else:
             # Create new protocol
             db.add(protocol)
